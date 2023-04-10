@@ -5,13 +5,13 @@ import addressRepository, { CreateAddressParams } from '@/repositories/address-r
 import enrollmentRepository, { CreateEnrollmentParams } from '@/repositories/enrollment-repository';
 import { exclude } from '@/utils/prisma-utils';
 
-interface AddressFormat {
+type AddressFormat = {
   logradouro: string;
   complemento: string;
   bairro: string;
   cidade: string;
   uf: string;
-}
+};
 
 async function getAddressFromCEP({ cep }: { cep: string }): Promise<AddressFormat> {
   const result = await request.get(`${process.env.VIA_CEP_API}/${cep}/json/`);
