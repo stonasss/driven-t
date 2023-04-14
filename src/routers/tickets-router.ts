@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { authenticateToken } from "@/middlewares";
-import { getTicketsTypes } from '@/controllers';
+import { getTicketsTypes, getTickets } from '@/controllers';
 
 const ticketsRouter = Router();
 
 ticketsRouter
-    .get('/tickets/types', getTicketsTypes)
+    .get('/types', getTicketsTypes)
+    .get('/', getTickets)

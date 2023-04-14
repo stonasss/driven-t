@@ -8,6 +8,14 @@ async function getTicketTypesByUserId(id: number){
     return ticketTypes;
 }
 
+async function getTicketsByUserId(id: number){
+    const tickets = await ticketsRepository.findTickets(id);
+
+    if (!tickets) throw notFoundError();
+    return tickets;
+}
+
 export const ticketsService = {
     getTicketTypesByUserId,
+    getTicketsByUserId,
 };
