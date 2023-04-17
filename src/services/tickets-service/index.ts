@@ -1,21 +1,21 @@
-import { notFoundError } from "@/errors";
-import { ticketsRepository } from "@/repositories/tickets-repository";
+import { notFoundError } from '@/errors';
+import { ticketsRepository } from '@/repositories/tickets-repository';
 
-async function getTicketTypesByUserId(id: number){
-    const ticketTypes = await ticketsRepository.findTicketTypes(id);
+async function getTicketTypesByUserId(id: number) {
+  const ticketTypes = await ticketsRepository.findTicketTypes(id);
 
-    if (!ticketTypes) throw notFoundError();
-    return ticketTypes;
+  if (!ticketTypes) throw notFoundError();
+  return ticketTypes;
 }
 
-async function getTicketsByUserId(id: number){
-    const tickets = await ticketsRepository.findTickets(id);
+async function getTicketsByUserId(id: number) {
+  const tickets = await ticketsRepository.findTickets(id);
 
-    if (!tickets) throw notFoundError();
-    return tickets;
+  if (!tickets) throw notFoundError();
+  return tickets;
 }
 
 export const ticketsService = {
-    getTicketTypesByUserId,
-    getTicketsByUserId,
+  getTicketTypesByUserId,
+  getTicketsByUserId,
 };
