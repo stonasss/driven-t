@@ -2,10 +2,13 @@ import { notFoundError, unauthorizedError } from '@/errors';
 import { paymentsRepository } from '@/repositories/payments-repository';
 import { ticketsRepository } from '@/repositories/tickets-repository';
 
-async function getInfoById(ticketId: number) {
+async function getInfoById(ticketId: number, userId: number) {
   const paymentInfo = await paymentsRepository.findPaymentInfo(ticketId);
+  const ticket = await ticketsRepository.findTicketsById(ticketId);
 
-  if (!paymentInfo) throw notFoundError();
+  if (!ticket) throw notFoundError();
+  if (ticket.Enrollment.userId !== userId) throw unauthorizedError();
+
   return paymentInfo;
 }
 
@@ -37,7 +40,8 @@ async function createTransaction(userId: number, ticketId: number, cardData: Car
     cardLastDigits: fourDigits,
   };
 
-  const transaction = await paymentsRepository.createTransaction(ticketId, paymentInfo);
+  const transaction = await paymentsRepository.registerTransaction(ticketId, paymentInfo);
+  await ticketsRepository.updateTicketStatus(ticketId);
 
   return transaction;
 }

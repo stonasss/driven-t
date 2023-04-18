@@ -14,7 +14,7 @@ type PaymentStructure = {
   cardLastDigits: string;
 };
 
-async function createTransaction(ticketId: number, paymentInfo: PaymentStructure) {
+async function registerTransaction(ticketId: number, paymentInfo: PaymentStructure) {
   return prisma.payment.create({
     data: {
       ticketId: ticketId,
@@ -27,5 +27,5 @@ async function createTransaction(ticketId: number, paymentInfo: PaymentStructure
 
 export const paymentsRepository = {
   findPaymentInfo,
-  createTransaction,
+  registerTransaction,
 };
