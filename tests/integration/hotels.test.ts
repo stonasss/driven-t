@@ -27,7 +27,7 @@ beforeEach(async () => {
 });
 
 describe('GET /hotels', () => {
-  it(`should respond with status 401 if token isn't given`, async () => {
+  it('should respond with status 401 if lacking token', async () => {
     const response = await server.get('/hotels');
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -40,7 +40,7 @@ describe('GET /hotels', () => {
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
 
-  it('should respond with status 401 if valid token has no session', async () => {
+  it('should respond with status 401 if token lacks session', async () => {
     const userWithoutSession = await createUser();
     const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
     const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
@@ -111,5 +111,31 @@ describe('GET /hotels', () => {
     const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+  });
+});
+
+describe('GET /hotels/:hotelId', () => {
+  it('should respond with status 401 if lacking token', async () => {
+    const hotel = await createHotel();
+    const response = await server.get(`/hotels/${hotel.id}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it('should respond with status 401 if token is invalid', async () => {
+    const token = faker.lorem.word();
+    const hotel = await createHotel();
+    const response = await server.get(`/hotels/${hotel.id}`).set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it('should respond with status 401 if token lacks session', async () => {
+    const userWithoutSession = await createUser();
+    const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
+    const hotel = await createHotel();
+    const response = await server.get(`/hotels/${hotel.id}`).set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
   });
 });
