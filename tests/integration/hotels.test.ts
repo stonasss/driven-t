@@ -6,7 +6,6 @@ import { TicketStatus } from '@prisma/client';
 import { generateValidToken, cleanDb } from '../helpers';
 import { createTicket, createTicketType, createEnrollmentWithAddress, createUser } from '../factories';
 import app, { init } from '@/app';
-import { prisma } from '@/config';
 
 const server = supertest(app);
 
