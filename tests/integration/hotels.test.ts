@@ -4,7 +4,14 @@ import supertest from 'supertest';
 import * as jwt from 'jsonwebtoken';
 import { TicketStatus } from '@prisma/client';
 import { generateValidToken, cleanDb } from '../helpers';
-import { createTicket, createTicketType, createEnrollmentWithAddress, createUser } from '../factories';
+import {
+  createTicket,
+  createTicketType,
+  createEnrollmentWithAddress,
+  createUser,
+  createRemoteTicketType,
+  createNoHotelTicketType,
+} from '../factories';
 import app, { init } from '@/app';
 
 const server = supertest(app);
@@ -55,6 +62,30 @@ describe('GET /hotels', () => {
     const ticketType = await createTicketType();
 
     await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
+    const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+  });
+
+  it('should respond with status 402 if ticket is remote', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createRemoteTicketType();
+
+    await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+    const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+  });
+
+  it('should respond with status 402 if ticket lacks hotel', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createNoHotelTicketType();
+
+    await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
     const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
