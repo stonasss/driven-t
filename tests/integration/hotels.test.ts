@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import faker from '@faker-js/faker';
 import supertest from 'supertest';
 import * as jwt from 'jsonwebtoken';
+import { TicketStatus } from '@prisma/client';
 import { generateValidToken, cleanDb } from '../helpers';
 import { createTicket, createTicketType, createEnrollmentWithAddress, createUser } from '../factories';
 import app, { init } from '@/app';
@@ -37,5 +38,26 @@ describe('GET /hotels', () => {
     const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  it('should respond with status 404 if ticket does not exist', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    await createEnrollmentWithAddress(user);
+    const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('should respond with status 402 when ticket is not paid', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createTicketType();
+
+    await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
+    const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
   });
 });
