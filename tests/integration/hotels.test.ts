@@ -11,6 +11,8 @@ import {
   createUser,
   createRemoteTicketType,
   createNoHotelTicketType,
+  createValidTicketType,
+  createHotel,
 } from '../factories';
 import app, { init } from '@/app';
 
@@ -50,6 +52,26 @@ describe('GET /hotels', () => {
     const user = await createUser();
     const token = await generateValidToken(user);
     await createEnrollmentWithAddress(user);
+    const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('should respond with status 404 if user has no enrollment', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+
+    const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it(`should respond with status 404 if there aren't any hotels`, async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createValidTicketType();
+
+    await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
     const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.NOT_FOUND);
