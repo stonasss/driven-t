@@ -16,6 +16,7 @@ import {
   ticketsRouter,
   paymentsRouter,
   hotelsRouter,
+  bookingsRouter,
 } from '@/routers';
 
 const app = express();
@@ -28,6 +29,7 @@ app
   .use('/event', eventsRouter)
   .use('/tickets', ticketsRouter)
   .use('/hotels', hotelsRouter)
+  .use('/booking', bookingsRouter)
   .use('/payments', paymentsRouter)
   .use('/enrollments', enrollmentsRouter)
   .use(handleApplicationErrors);
