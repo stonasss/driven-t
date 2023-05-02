@@ -14,6 +14,9 @@ import {
   createTicket,
   createNoHotelTicketType,
   createTicketType,
+  createPayment,
+  createFullRoom,
+  createValidTicketType,
 } from '../factories';
 import app, { init } from '@/app';
 
@@ -145,6 +148,42 @@ describe('POST /booking', () => {
       const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
 
       expect(response.status).toEqual(httpStatus.FORBIDDEN);
+    });
+
+    it('should respond with status 403 if room is at full capacity', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+
+      const hotel = await createHotel();
+      const room = await createFullRoom(hotel.id);
+      const ticketType = await createTicketType();
+
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+
+      await createPayment(ticket.id, ticketType.price);
+      await createBooking(user.id, room.id);
+
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+
+      expect(response.status).toEqual(httpStatus.FORBIDDEN);
+    });
+
+    it('should respond with status 200 and correct body', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const hotel = await createHotel();
+      const room = await createHotelRooms(hotel.id);
+      const ticketType = await createValidTicketType();
+      const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      await createPayment(ticket.id, ticketType.price);
+
+      const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: room.id });
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual({
+        bookingId: expect.any(Number),
+      });
     });
   });
 });
