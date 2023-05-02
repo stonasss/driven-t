@@ -25,6 +25,8 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
     if (tickets.status !== 'PAID' || tickets.TicketType.isRemote === true || tickets.TicketType.includesHotel !== true)
       return res.sendStatus(httpStatus.FORBIDDEN);
 
+    if (roomId < 1) return res.sendStatus(httpStatus.FORBIDDEN);
+
     const booking = await bookingsService.createBooking(userId, roomId);
     return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (err) {
