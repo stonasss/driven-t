@@ -214,14 +214,11 @@ describe('PUT /booking/:bookingId', () => {
     it('should respond with 404 if room is not found', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createValidTicketType();
-      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
 
       const response = await server
-        .put(`/booking/${faker.random.numeric()}`)
+        .put(`/booking/${Number(faker.random.numeric())}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ roomId: 1 });
+        .send({ roomId: Number(faker.random.numeric()) });
 
       expect(response.status).toEqual(httpStatus.NOT_FOUND);
     });

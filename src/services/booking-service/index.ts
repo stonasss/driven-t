@@ -4,17 +4,16 @@ import { hotelsRepository } from '@/repositories/hotels-repository';
 
 async function getBookingsByUserId(userId: number) {
   const bookings = await bookingsRepository.findBookings(userId);
-  console.log(bookings);
   if (!bookings) throw notFoundError();
   return bookings;
 }
 
 async function createBooking(userId: number, roomId: number) {
+  const vacancies = await bookingsRepository.checkVacancies(roomId);
   const room = await hotelsRepository.findRoomByRoomId(roomId);
-  if (!room) throw notFoundError();
 
-  const bookings = await bookingsRepository.findBookingsByRoomId(roomId);
-  if (bookings.length === room.capacity) throw forbiddenError();
+  if (!room) throw notFoundError();
+  if (vacancies === 0) throw forbiddenError();
 
   const booking = await bookingsRepository.registerBooking(userId, roomId);
   if (!roomId) throw notFoundError();
@@ -23,11 +22,12 @@ async function createBooking(userId: number, roomId: number) {
 
 async function updateBooking(userId: number, roomId: number, bookingId: number) {
   const room = await hotelsRepository.findRoomByRoomId(roomId);
-  const booking = await bookingsRepository.findBookings(userId);
-
   if (!room) throw notFoundError();
+  const booking = await bookingsRepository.findBookings(userId);
+  const vacancies = await bookingsRepository.checkVacancies(roomId);
+
   if (!booking) throw forbiddenError();
-  if (room.capacity === 0) throw forbiddenError();
+  if (vacancies === 0) throw forbiddenError();
 
   const alteredBooking = await bookingsRepository.alterBooking(roomId, bookingId);
   return alteredBooking;

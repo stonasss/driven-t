@@ -29,6 +29,20 @@ async function registerBooking(userId: number, roomId: number) {
   });
 }
 
+export async function checkVacancies(roomId: number) {
+  const room = await prisma.room.findUnique({
+    where: {
+      id: roomId,
+    },
+    include: {
+      Booking: true,
+    },
+  });
+  const bookingCount = room.Booking.length;
+  const vacancies = room.capacity - bookingCount;
+  return vacancies;
+}
+
 async function alterBooking(roomId: number, bookingId: number) {
   return prisma.booking.update({
     where: {
@@ -45,4 +59,5 @@ export const bookingsRepository = {
   registerBooking,
   findBookingsByRoomId,
   alterBooking,
+  checkVacancies,
 };
