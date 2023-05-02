@@ -1,5 +1,6 @@
 import { notFoundError, forbiddenError } from '@/errors';
 import { bookingsRepository } from '@/repositories/bookings-repository';
+import { hotelsRepository } from '@/repositories/hotels-repository';
 
 async function getBookingsByUserId(userId: number) {
   const bookings = await bookingsRepository.findBookings(userId);
@@ -8,7 +9,7 @@ async function getBookingsByUserId(userId: number) {
 }
 
 async function createBooking(userId: number, roomId: number) {
-  const room = await bookingsRepository.findRoomByRoomId(roomId);
+  const room = await hotelsRepository.findRoomByRoomId(roomId);
   if (!room) throw notFoundError();
 
   const bookings = await bookingsRepository.findBookingsByRoomId(roomId);
@@ -20,7 +21,7 @@ async function createBooking(userId: number, roomId: number) {
 }
 
 async function updateBooking(userId: number, roomId: number, bookingId: number) {
-  const room = await bookingsRepository.findRoomByRoomId(roomId);
+  const room = await hotelsRepository.findRoomByRoomId(roomId);
   const booking = await bookingsRepository.findBookings(userId);
 
   if (!room || booking) throw forbiddenError();
