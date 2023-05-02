@@ -9,14 +9,12 @@ async function getBookingsByUserId(userId: number) {
 }
 
 async function createBooking(userId: number, roomId: number) {
-  const vacancies = await bookingsRepository.checkVacancies(roomId);
   const room = await hotelsRepository.findRoomByRoomId(roomId);
-
   if (!room) throw notFoundError();
+  const vacancies = await bookingsRepository.checkVacancies(roomId);
   if (vacancies === 0) throw forbiddenError();
 
   const booking = await bookingsRepository.registerBooking(userId, roomId);
-  if (!roomId) throw notFoundError();
   return booking;
 }
 

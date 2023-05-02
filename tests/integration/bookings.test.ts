@@ -108,6 +108,18 @@ describe('POST /booking', () => {
   });
 
   describe('when token is valid', () => {
+    it('should respond with 404 if room is not found', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+
+      const response = await server
+        .post('/booking')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ roomId: Number(faker.random.numeric()) });
+
+      expect(response.status).toEqual(httpStatus.NOT_FOUND);
+    });
+
     it('should respond with status 403 if ticket is remote', async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
