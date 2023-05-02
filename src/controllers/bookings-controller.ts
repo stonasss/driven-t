@@ -8,6 +8,7 @@ export async function getBookings(req: AuthenticatedRequest, res: Response) {
   try {
     const { userId } = req;
     const bookings = await bookingsService.getBookingsByUserId(userId);
+    console.log(bookings);
 
     return res.status(httpStatus.OK).send(bookings);
   } catch (err) {
